@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>迷你世界颜色代码工具</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #03A9F4;
+            --accent-color: #00BCD4;
+            --light-accent: #B2EBF2;
+            --text-color: #263238;
+            --border-color: #B0BEC5;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 50%, #80DEEA 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+        
+        .tool-container {
+            background-color: rgba(255, 255, 255, 0.92);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(176, 190, 197, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #006064;
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .mini-id {
+            text-align: center;
+            color: #00838F;
+            margin-bottom: 25px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .color-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.05);
+        }
+        
+        input[type="color"] {
+            width: 100%;
+            height: 45px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        input[type="color"]:hover {
+            border-color: var(--accent-color);
+        }
+        
+        .slider-container {
+            margin: 18px 0;
+        }
+        
+        .slider-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #00796B;
+            font-size: 15px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #B2EBF2, #80DEEA, #4DD0E1, #00BCD4);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            border: 2px solid #00BCD4;
+        }
+        
+        .value-display {
+            text-align: right;
+            font-size: 13px;
+            color: #00838F;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+        
+        .code-result {
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid rgba(178, 235, 242, 0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .code-result label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #006064;
+            font-size: 15px;
+        }
+        
+        .code-result input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(0, 188, 212, 0.3);
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background-color: rgba(255,255,255,0.95);
+            color: #263238;
+        }
+        
+        .note {
+            font-size: 13px;
+            color: #00838F;
+            margin-top: 15px;
+            line-height: 1.5;
+            text-align: center;
+        }
+        
+        .hue-marker-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            height: 24px;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .hue-marker {
+            flex: 1;
+            height: 100%;
+            transition: all 0.3s;
+        }
+        
+        .hue-marker:hover {
+            transform: scaleY(1.4);
+        }
+        
+        .mode-switch {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            gap: 5px;
+        }
+        
+        .mode-switch button {
+            padding: 10px 22px;
+            border: none;
+            background: linear-gradient(135deg, rgba(178, 235, 242, 0.8), rgba(128, 222, 234, 0.8));
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #006064;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        
+        .mode-switch button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+        }
+        
+        .mode-switch button.active {
+            background: linear-gradient(135deg, #00BCD4, #0097A7);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+        
+        .mode-container {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .mode-container.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-container">
+        <h1>迷你世界颜色代码工具</h1>
+        <div class="mini-id">迷你号: 1417492990</div>
+        
+        <div class="mode-switch">
+            <button id="rgbModeBtn" class="active">RGB模式</button>
+            <button id="hsvModeBtn">HSV模式</button>
+        </div>
+        
+        <!-- RGB模式 -->
+        <div id="rgbMode" class="mode-container active">
+            <input type="color" id="rgbColorPicker" value="#2196F3">
+            
+            <div class="slider-container">
+                <label for="rgbSaturation">饱和度</label>
+                <input type="range" id="rgbSaturation" min="0" max="200" value="100">
+                <div class="value-display"><span id="rgbSaturationValue">100</span>%</div>
+            </div>
+            
+            <div class="slider-container">
+                <label for="rgbBrightness">亮度</label>
+                <input type="range" id="rgbBrightness" min="0" max="200" value="100">
+                <div class="value-display"><span id="rgbBrightnessValue">100</span>%</div>
+            </div>
+            
+            <div class="color-preview" id="rgbColorPreview"></div>
+            
+            <div class="code-result">
+                <label>RGB 颜色值</label>
+                <input type="text" id="rgbCode" value="rgb(33, 150, 243)" readonly>
+            </div>
+            
+            <div class="code-result">
+                <label>16进制颜色代码</label>
+                <input type="text" id="rgbHexCode" value="#2196F3" readonly>
+            </div>
+            
+            <div class="code-result">
+                <label>迷你世界颜色代码</label>
+                <input type="text" id="rgbMiniCode" value="#c2196F3" readonly>
+            </div>
+            
+            <div class="code-result">
+                <label>迷你世界颜色代码2</label>
+                <input type="text" id="rgbMiniCode2" value="[color=#2196F3]" readonly>
+            </div>
+        </div>
+        
+        <!-- HSV模式 -->
+        <div id="hsvMode" class="mode-container">
+            <div class="slider-container">
+                <label for="hsvHue">色相 (H)</label>
+                <input type="range" id="hsvHue" min="0" max="360" value="200">
+                <div class="value-display"><span id="hsvHueValue">200</span>°</div>
+                <div class="hue-marker-container" id="hueMarkers"></div>
+            </div>
+            
+            <div class="slider-container">
+                <label for="hsvSaturation">饱和度 (S)</label>
+                <input type="range" id="hsvSaturation" min="0" max="100" value="100">
+                <div class="value-display"><span id="hsvSaturationValue">100</span>%</div>
+            </div>
+            
+            <div class="slider-container">
+                <label for="hsvValue">明度 (V)</label>
+                <input type="range" id="hsvValue" min="0" max="100" value="100">
+                <div class="value-display"><span id="hsvValueValue">100</span>%</div>
+            </div>
+            
+            <div class="color-preview" id="hsvColorPreview"></div>
+            
+            <div class="code-result">
+                <label>RGB 颜色值</label>
+                <input type="text" id="hsvRgbCode" value="rgb(0, 188, 212)" readonly>
+            </div>
+            
+            <div class="code-result">
+                <label>16进制颜色代码</label>
+                <input type="text" id="hsvHexCode" value="#00BCD4" readonly>
+            </div>
+            
+            <div class="code-result">
+                <label>迷你世界颜色代码</label>
+                <input type="text" id="hsvMiniCode" value="#c00BCD4" readonly>
+            </div>
+            
+            <div class="code-result">
+                <label>迷你世界颜色代码2</label>
+                <input type="text" id="hsvMiniCode2" value="[color=#00BCD4]" readonly>
+            </div>
+        </div>
+        
+        <div class="note">
+            * 迷你世界颜色代码格式为 #c + 6位16进制颜色值（如 #cFFFFFF）<br>
+            * 迷你世界颜色代码2格式为 [color=#十六进制]（如 [color=#2196F3]）<br>
+            * 色相滑块下方的标记显示了色相环上的颜色分布
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const rgbModeBtn = document.getElementById('rgbModeBtn');
+        const hsvModeBtn = document.getElementById('hsvModeBtn');
+        const rgbMode = document.getElementById('rgbMode');
+        const hsvMode = document.getElementById('hsvMode');
+        
+        // RGB模式元素
+        const rgbColorPicker = document.getElementById('rgbColorPicker');
+        const rgbSaturationSlider = document.getElementById('rgbSaturation');
+        const rgbBrightnessSlider = document.getElementById('rgbBrightness');
+        const rgbSaturationValue = document.getElementById('rgbSaturationValue');
+        const rgbBrightnessValue = document.getElementById('rgbBrightnessValue');
+        const rgbColorPreview = document.getElementById('rgbColorPreview');
+        const rgbCode = document.getElementById('rgbCode');
+        const rgbHexCode = document.getElementById('rgbHexCode');
+        const rgbMiniCode = document.getElementById('rgbMiniCode');
+        const rgbMiniCode2 = document.getElementById('rgbMiniCode2');
+        
+        // HSV模式元素
+        const hsvHueSlider = document.getElementById('hsvHue');
+        const hsvSaturationSlider = document.getElementById('hsvSaturation');
+        const hsvValueSlider = document.getElementById('hsvValue');
+        const hsvHueValue = document.getElementById('hsvHueValue');
+        const hsvSaturationValue = document.getElementById('hsvSaturationValue');
+        const hsvValueValue = document.getElementById('hsvValueValue');
+        const hsvColorPreview = document.getElementById('hsvColorPreview');
+        const hsvRgbCode = document.getElementById('hsvRgbCode');
+        const hsvHexCode = document.getElementById('hsvHexCode');
+        const hsvMiniCode = document.getElementById('hsvMiniCode');
+        const hsvMiniCode2 = document.getElementById('hsvMiniCode2');
+        const hueMarkersContainer = document.getElementById('hueMarkers');
+        
+        // 创建色相标记
+        function createHueMarkers() {
+            hueMarkersContainer.innerHTML = '';
+            const markerCount = 36; // 每10度一个标记
+            for (let i = 0; i < markerCount; i++) {
+                const hue = i * (360 / markerCount);
+                const marker = document.createElement('div');
+                marker.className = 'hue-marker';
+                marker.style.backgroundColor = hsvToHex(hue, 1, 1);
+                hueMarkersContainer.appendChild(marker);
+            }
+        }
+        
+        // 初始化
+        createHueMarkers();
+        updateRgbMode();
+        
+        // 模式切换
+        rgbModeBtn.addEventListener('click', function() {
+            rgbModeBtn.classList.add('active');
+            hsvModeBtn.classList.remove('active');
+            rgbMode.classList.add('active');
+            hsvMode.classList.remove('active');
+        });
+        
+        hsvModeBtn.addEventListener('click', function() {
+            hsvModeBtn.classList.add('active');
+            rgbModeBtn.classList.remove('active');
+            hsvMode.classList.add('active');
+            rgbMode.classList.remove('active');
+            updateHsvMode();
+        });
+        
+        // RGB模式事件监听
+        rgbColorPicker.addEventListener('input', updateRgbMode);
+        rgbSaturationSlider.addEventListener('input', function() {
+            rgbSaturationValue.textContent = this.value;
+            updateRgbMode();
+        });
+        rgbBrightnessSlider.addEventListener('input', function() {
+            rgbBrightnessValue.textContent = this.value;
+            updateRgbMode();
+        });
+        
+        // HSV模式事件监听
+        hsvHueSlider.addEventListener('input', function() {
+            hsvHueValue.textContent = this.value;
+            updateHsvMode();
+        });
+        hsvSaturationSlider.addEventListener('input', function() {
+            hsvSaturationValue.textContent = this.value;
+            updateHsvMode();
+        });
+        hsvValueSlider.addEventListener('input', function() {
+            hsvValueValue.textContent = this.value;
+            updateHsvMode();
+        });
+        
+        // 更新RGB模式
+        function updateRgbMode() {
+            const baseColor = rgbColorPicker.value;
+            const saturation = parseInt(rgbSaturationSlider.value) / 100;
+            const brightness = parseInt(rgbBrightnessSlider.value) / 100;
+            
+            // 应用饱和度和亮度调整
+            const adjustedColor = adjustColor(baseColor, saturation, brightness);
+            
+            // 更新预览和代码
+            rgbColorPreview.style.backgroundColor = adjustedColor;
+            updateRgbColorCodes(adjustedColor);
+        }
+        
+        // 更新HSV模式
+        function updateHsvMode() {
+            const h = parseInt(hsvHueSlider.value);
+            const s = parseInt(hsvSaturationSlider.value) / 100;
+            const v = parseInt(hsvValueSlider.value) / 100;
+            
+            // 转换为RGB
+            const hexColor = hsvToHex(h, s, v);
+            
+            // 更新预览和代码
+            hsvColorPreview.style.backgroundColor = hexColor;
+            updateHsvColorCodes(hexColor);
+        }
+        
+        // 颜色调整函数（简化版HSL调整）
+        function adjustColor(hexColor, saturation, brightness) {
+            // 将16进制转换为RGB
+            let r = parseInt(hexColor.substr(1, 2), 16);
+            let g = parseInt(hexColor.substr(3, 2), 16);
+            let b = parseInt(hexColor.substr(5, 2), 16);
+            
+            // 计算灰度值
+            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+            
+            // 应用饱和度
+            r = gray + (r - gray) * saturation;
+            g = gray + (g - gray) * saturation;
+            b = gray + (b - gray) * saturation;
+            
+            // 应用亮度
+            r *= brightness;
+            g *= brightness;
+            b *= brightness;
+            
+            // 确保值在0-255范围内
+            r = Math.max(0, Math.min(255, r));
+            g = Math.max(0, Math.min(255, g));
+            b = Math.max(0, Math.min(255, b));
+            
+            // 转换回16进制
+            return rgbToHex(Math.round(r), Math.round(g), Math.round(b));
+        }
+        
+        // RGB转16进制
+        function rgbToHex(r, g, b) {
+            return "#" + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? "0" + hex : hex;
+            }).join("").toUpperCase();
+        }
+        
+        // HSV转16进制
+        function hsvToHex(h, s, v) {
+            let r, g, b;
+            
+            h = h % 360;
+            if (h < 0) h += 360;
+            h /= 60;
+            
+            const c = v * s;
+            const x = c * (1 - Math.abs((h % 2) - 1));
+            
+            if (h >= 0 && h < 1) {
+                r = c; g = x; b = 0;
+            } else if (h >= 1 && h < 2) {
+                r = x; g = c; b = 0;
+            } else if (h >= 2 && h < 3) {
+                r = 0; g = c; b = x;
+            } else if (h >= 3 && h < 4) {
+                r = 0; g = x; b = c;
+            } else if (h >= 4 && h < 5) {
+                r = x; g = 0; b = c;
+            } else {
+                r = c; g = 0; b = x;
+            }
+            
+            const m = v - c;
+            r += m;
+            g += m;
+            b += m;
+            
+            r = Math.round(r * 255);
+            g = Math.round(g * 255);
+            b = Math.round(b * 255);
+            
+            return rgbToHex(r, g, b);
+        }
+        
+        // 更新RGB模式颜色代码
+        function updateRgbColorCodes(hexColor) {
+            // 获取RGB值
+            const r = parseInt(hexColor.substr(1, 2), 16);
+            const g = parseInt(hexColor.substr(3, 2), 16);
+            const b = parseInt(hexColor.substr(5, 2), 16);
+            
+            // 更新RGB代码
+            rgbCode.value = `rgb(${r}, ${g}, ${b})`;
+            
+            // 更新16进制代码
+            rgbHexCode.value = hexColor.toUpperCase();
+            
+            // 更新迷你世界代码
+            rgbMiniCode.value = `#c${hexColor.substr(1).toUpperCase()}`;
+            
+            // 更新迷你世界颜色代码2
+            rgbMiniCode2.value = `[color=${hexColor.toUpperCase()}]`;
+        }
+        
+        // 更新HSV模式颜色代码
+        function updateHsvColorCodes(hexColor) {
+            // 获取RGB值
+            const r = parseInt(hexColor.substr(1, 2), 16);
+            const g = parseInt(hexColor.substr(3, 2), 16);
+            const b = parseInt(hexColor.substr(5, 2), 16);
+            
+            // 更新RGB代码
+            hsvRgbCode.value = `rgb(${r}, ${g}, ${b})`;
+            
+            // 更新16进制代码
+            hsvHexCode.value = hexColor.toUpperCase();
+            
+            // 更新迷你世界代码
+            hsvMiniCode.value = `#c${hexColor.substr(1).toUpperCase()}`;
+            
+            // 更新迷你世界颜色代码2
+            hsvMiniCode2.value = `[color=${hexColor.toUpperCase()}]`;
+        }
+    </script>
+</body>
+</html>
